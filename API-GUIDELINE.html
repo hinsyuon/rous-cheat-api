@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rous Cheat · Postman Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Serif+Khmer:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0B0E14;
+  --bg2:    #111520;
+  --bg3:    #171D2E;
+  --border: rgba(255,255,255,0.06);
+  --text:   #CDD5E0;
+  --muted:  #556070;
+  --bright: #EDF2FF;
+  --GET:    #4ADE80;
+  --POST:   #FBBF24;
+  --PUT:    #60A5FA;
+  --DEL:    #F87171;
+  --acc:    #E8891A;
+  --teal:   #2DD4BF;
+  --purple: #A78BFA;
+  --mono:   'IBM Plex Mono', monospace;
+  --sans:   'Outfit', sans-serif;
+  --kh:     'Noto Serif Khmer', serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.65;display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sb{width:248px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column}
+.sb::-webkit-scrollbar{width:3px}
+.sb::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.sb-top{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.sb-name{font-size:15px;font-weight:700;color:var(--bright);display:flex;align-items:center;gap:8px}
+.sb-kh{font-family:var(--kh);font-size:11px;color:var(--acc);margin-top:3px;opacity:.8}
+.sb-ver{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:4px;width:fit-content}
+.sb-sec{padding:12px 8px 4px}
+.sb-lbl{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:4px}
+.sb-a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;color:var(--muted);text-decoration:none;transition:all .15s;white-space:nowrap;overflow:hidden}
+.sb-a:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.sb-a.on{background:rgba(232,137,26,0.1);color:var(--acc)}
+.mt{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;min-width:38px;text-align:center;flex-shrink:0;letter-spacing:.04em}
+.GET{background:rgba(74,222,128,0.12);color:var(--GET)}
+.POST{background:rgba(251,191,36,0.12);color:var(--POST)}
+.PUT{background:rgba(96,165,250,0.12);color:var(--PUT)}
+.DELETE{background:rgba(248,113,113,0.12);color:var(--DEL)}
+
+/* MAIN */
+.main{margin-left:248px;flex:1;padding:48px 52px;max-width:calc(100% - 248px)}
+
+/* HERO */
+.hero{margin-bottom:48px;padding-bottom:36px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:32px}
+.hero h1{font-size:28px;font-weight:800;color:var(--bright);line-height:1.1;margin-bottom:6px}
+.hero h1 span{color:var(--acc)}
+.hero p{font-size:13px;color:var(--muted);max-width:420px;line-height:1.65}
+.hbadges{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.hb{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:100px;border:1px solid;white-space:nowrap}
+.hb-or{color:var(--acc);border-color:rgba(232,137,26,0.25);background:rgba(232,137,26,0.06)}
+.hb-gr{color:var(--GET);border-color:rgba(74,222,128,0.25);background:rgba(74,222,128,0.06)}
+.hb-tl{color:var(--teal);border-color:rgba(45,212,191,0.25);background:rgba(45,212,191,0.06)}
+.url-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px 18px;flex-shrink:0}
+.url-lbl{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.url-val{font-family:var(--mono);font-size:13px;color:var(--teal)}
+
+/* SECTION */
+.sec{margin-bottom:52px;scroll-margin-top:20px}
+.sec-t{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin-bottom:18px;display:flex;align-items:center;gap:12px}
+.sec-t::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(232,137,26,.25),transparent)}
+
+/* STEP CARDS */
+.step{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.step-h{padding:13px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;user-select:none;transition:background .15s}
+.step-h:hover{background:rgba(255,255,255,0.02)}
+.sn{width:26px;height:26px;border-radius:50%;background:rgba(232,137,26,0.12);border:1px solid rgba(232,137,26,0.3);color:var(--acc);font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.st{font-weight:600;font-size:13.5px;color:var(--bright);flex:1}
+.ss{font-size:11px;color:var(--muted)}
+.chev{color:var(--muted);font-size:11px;transition:transform .2s;margin-left:8px}
+.step.op .chev{transform:rotate(180deg)}
+.step-b{display:none;border-top:1px solid var(--border);padding:16px 18px}
+.step.op .step-b{display:block}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:7px 12px;background:rgba(0,0,0,0.3);border-bottom:1px solid var(--border)}
+.tbl td{padding:8px 12px;font-size:12.5px;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{font-family:var(--mono);color:var(--teal);font-size:12px}
+.tbl td:nth-child(2){font-family:var(--mono);color:var(--GET);font-size:11px}
+.tbl td:last-child{color:var(--muted);font-size:12px}
+
+/* CALLOUT */
+.cl{display:flex;gap:10px;padding:11px 14px;border-radius:7px;margin:10px 0;font-size:12.5px;line-height:1.6}
+.cl-i{background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.18)}
+.cl-s{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.18)}
+.cl-w{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.18)}
+.cl-t{background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.18)}
+.cli{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* ENDPOINT */
+.ep{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px;transition:border-color .2s}
+.ep:hover{border-color:rgba(255,255,255,0.1)}
+.ep-h{padding:12px 16px;display:flex;align-items:center;gap:11px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
+.ep-t{font-weight:600;font-size:13px;color:var(--bright);flex:1}
+.ep-auth{font-size:10px;color:var(--POST);background:rgba(251,191,36,0.1);padding:2px 8px;border-radius:100px;font-weight:600}
+.url-r{display:flex;align-items:center;padding:9px 16px;background:#060810;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12.5px;overflow-x:auto;white-space:nowrap}
+.ub{color:var(--muted)}
+.up{color:var(--bright)}
+.uq{color:var(--POST)}
+.ep-b{padding:14px 16px}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:rgba(0,0,0,0.4);padding:3px;border-radius:6px;width:fit-content;margin-bottom:11px}
+.tab{padding:5px 13px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);background:none;border:none;font-family:var(--sans);transition:all .15s;letter-spacing:.02em}
+.tab.on{background:var(--bg3);color:var(--bright)}
+.pane{display:none}
+.pane.on{display:block}
+
+/* CODE */
+.code{background:#060810;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:13px 15px;font-family:var(--mono);font-size:12px;line-height:1.85;overflow-x:auto;position:relative;white-space:pre}
+.cpb{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.cpb:hover{background:rgba(255,255,255,0.1);color:var(--bright)}
+.cpb.ok{color:var(--GET);border-color:rgba(74,222,128,0.3)}
+.ck{color:#F87171}.cs{color:#86EFAC}.cn{color:#FCD34D}.cb{color:#60A5FA}.cc{color:#374151}
+
+/* RESPONSE */
+.rr{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px}
+.rr:last-child{border-bottom:none}
+.rp{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;min-width:36px;text-align:center}
+.r200{background:rgba(74,222,128,0.12);color:var(--GET)}
+.r201{background:rgba(96,165,250,0.12);color:var(--PUT)}
+.r204{background:rgba(167,139,250,0.12);color:var(--purple)}
+.r401{background:rgba(248,113,113,0.12);color:var(--DEL)}
+.r403{background:rgba(248,113,113,0.12);color:var(--DEL)}
+.r404{background:rgba(248,113,113,0.12);color:var(--DEL)}
+.r409{background:rgba(251,191,36,0.12);color:var(--POST)}
+.r422{background:rgba(251,191,36,0.12);color:var(--POST)}
+.rd{color:var(--muted)}
+
+/* FLOW */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 0 8px}
+.fb{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 13px;font-size:12px;font-weight:600;text-align:center;color:var(--text)}
+.fb.hi{border-color:rgba(232,137,26,0.4);color:var(--acc);background:rgba(232,137,26,0.07)}
+.fa{color:var(--muted)}
+
+@media(max-width:900px){.sb{display:none}.main{margin-left:0;padding:24px 20px;max-width:100%}.hero{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav class="sb">
+  <div class="sb-top">
+    <div class="sb-name">🍲 Rous Cheat API</div>
+    <div class="sb-kh">រសជាតិ · Postman API Guideline </div>
+    <div class="sb-ver">v1.0 · Mr. Uon Hinsy</div>
+  </div>
+  <div class="sb-sec"><div class="sb-lbl">Getting Started</div>
+    <a href="#setup" class="sb-a on">⚙️ Setup</a>
+    <a href="#auth-flow" class="sb-a">🔄 Auth Flow</a>
+  </div>
+  <div class="sb-sec"><div class="sb-lbl">Auth</div>
+    <a href="#register" class="sb-a"><span class="mt POST">POST</span>Register</a>
+    <a href="#login"    class="sb-a"><span class="mt POST">POST</span>Login</a>
+    <a href="#me"       class="sb-a"><span class="mt GET">GET</span>Me</a>
+  </div>
+  <div class="sb-sec"><div class="sb-lbl">Recipes</div>
+    <a href="#r-list"    class="sb-a"><span class="mt GET">GET</span>List</a>
+    <a href="#r-show"    class="sb-a"><span class="mt GET">GET</span>Single</a>
+    <a href="#r-search"  class="sb-a"><span class="mt GET">GET</span>Search</a>
+    <a href="#r-popular" class="sb-a"><span class="mt GET">GET</span>Popular</a>
+    <a href="#r-random"  class="sb-a"><span class="mt GET">GET</span>Random</a>
+    <a href="#r-create"  class="sb-a"><span class="mt POST">POST</span>Create</a>
+    <a href="#r-update"  class="sb-a"><span class="mt PUT">PUT</span>Update</a>
+    <a href="#r-delete"  class="sb-a"><span class="mt DELETE">DELETE</span>Delete</a>
+  </div>
+  <div class="sb-sec"><div class="sb-lbl">Discovery</div>
+    <a href="#categories"  class="sb-a"><span class="mt GET">GET</span>Categories</a>
+    <a href="#regions"     class="sb-a"><span class="mt GET">GET</span>Regions</a>
+    <a href="#ingredients" class="sb-a"><span class="mt GET">GET</span>Ingredients</a>
+  </div>
+  <div class="sb-sec"><div class="sb-lbl">User Actions</div>
+    <a href="#favorites" class="sb-a"><span class="mt POST">POST</span>Favorites</a>
+    <a href="#reviews"   class="sb-a"><span class="mt POST">POST</span>Reviews</a>
+    <a href="#users"     class="sb-a"><span class="mt GET">GET</span>Users</a>
+  </div>
+  <div class="sb-sec"><div class="sb-lbl">Reference</div>
+    <a href="#codes" class="sb-a">📋 Status Codes</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <h1>Postman API Guideline — <span>Rous Cheat</span></h1>
+      <p>ការណែនាំប្រើ Postman ជាមួយ API ។ PDO Named Parameters <code style="font-family:var(--mono);color:var(--teal);font-size:11px">:name</code> ត្រូវបានប្រើក្នុង SQL ទាំងអស់។</p>
+      <div class="hbadges">
+        <span class="hb hb-or">Named Params :key</span>
+        <span class="hb hb-gr">MySQL 8.0</span>
+        <span class="hb hb-tl">JWT Auth</span>
+      </div>
+    </div>
+    <div class="url-box">
+      <div class="url-lbl">Base URL</div>
+      <div class="url-val">{{base_url}}</div>
+      <div style="margin-top:7px;font-size:11px;color:var(--muted)">= http://localhost:8000/api/v1</div>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="sec" id="setup">
+    <div class="sec-t">Setup Postman</div>
+
+    <div class="step op">
+      <div class="step-h" onclick="tog(this)">
+        <div class="sn">1</div>
+        <div style="flex:1"><div class="st">Create Environment</div><div class="ss">រក្សាទុក base_url និង token</div></div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="step-b">
+        <ol style="padding-left:18px;line-height:2.3;color:var(--muted);font-size:13px">
+          <li>Postman → <strong style="color:var(--bright)">Environments</strong> → <strong style="color:var(--acc)">+ Add</strong></li>
+          <li>Name: <code style="font-family:var(--mono);color:var(--teal)">Rous Cheat Local</code></li>
+          <li>បន្ថែម variables:</li>
+        </ol>
+        <table class="tbl" style="margin-top:12px">
+          <thead><tr><th>Variable</th><th>Initial Value</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>base_url</td><td>http://localhost:8000/api/v1</td><td>API root</td></tr>
+            <tr><td>token</td><td><em style="color:var(--muted)">(leave empty)</em></td><td>Auto-fill after login</td></tr>
+            <tr><td>recipe_id</td><td>1</td><td>Quick test</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="step op">
+      <div class="step-h" onclick="tog(this)">
+        <div class="sn">2</div>
+        <div style="flex:1"><div class="st">Set Collection Authorization</div><div class="ss">Protected requests inherit ស្វ័យប្រវត្តិ</div></div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="step-b">
+        <ol style="padding-left:18px;line-height:2.3;color:var(--muted);font-size:13px">
+          <li>Click collection → <strong style="color:var(--bright)">Edit</strong> → tab <strong style="color:var(--bright)">Authorization</strong></li>
+          <li>Type → <strong style="color:var(--acc)">Bearer Token</strong></li>
+          <li>Token → <code style="font-family:var(--mono);color:var(--teal)">{{token}}</code></li>
+          <li>Save</li>
+        </ol>
+        <div class="cl cl-i"><span class="cli">💡</span><div>Protected endpoint → <strong>Inherit auth from parent</strong>. Public endpoint → <strong>No Auth</strong>.</div></div>
+      </div>
+    </div>
+
+    <div class="step op">
+      <div class="step-h" onclick="tog(this)">
+        <div class="sn">3</div>
+        <div style="flex:1"><div class="st">Collection Headers</div><div class="ss">ដាក់ម្ដង ប្រើទាំងអស់</div></div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="step-b">
+        <table class="tbl">
+          <thead><tr><th>Header</th><th>Value</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Content-Type</td><td>application/json</td><td>JSON body</td></tr>
+            <tr><td>Accept</td><td>application/json</td><td>JSON response</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH FLOW -->
+  <div class="sec" id="auth-flow">
+    <div class="sec-t">Auth Flow</div>
+    <div class="flow">
+      <div class="fb">Register / Login<br><span style="font-size:10px;color:var(--muted)">POST /auth/...</span></div>
+      <div class="fa">→</div>
+      <div class="fb hi">Get JWT Token<br><span style="font-size:10px">data.token</span></div>
+      <div class="fa">→</div>
+      <div class="fb">Auto-save<br><span style="font-size:10px;color:var(--muted)">Tests script</span></div>
+      <div class="fa">→</div>
+      <div class="fb">Bearer <code style="font-family:var(--mono);font-size:10px">{{token}}</code><br><span style="font-size:10px;color:var(--muted)">All 🔒 requests</span></div>
+    </div>
+    <div class="cl cl-t">
+      <span class="cli">🔑</span>
+      <div><strong>Named Parameters</strong> — SQL ប្រើ <code style="font-family:var(--mono);color:var(--teal)">:name</code>, <code style="font-family:var(--mono);color:var(--teal)">:email</code>, <code style="font-family:var(--mono);color:var(--teal)">:recipe_id</code> ជំនួស <code style="font-family:var(--mono)">?</code>. មិនប៉ះពាល់ Postman ទេ — JSON body ដូចគ្នា។</div>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div class="sec" id="register">
+    <div class="sec-t">Auth — Register</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt POST">POST</span><div class="ep-t">Register new user</div><div style="font-size:11px;color:var(--muted)">ត្រឡប់ JWT token</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/auth/register</span></div>
+      <div class="ep-b">
+        <div class="tabs" id="tg-reg">
+          <button class="tab on" onclick="sw('reg','body',this)">Body</button>
+          <button class="tab" onclick="sw('reg','resp',this)">Response</button>
+          <button class="tab" onclick="sw('reg','test',this)">Tests Script</button>
+        </div>
+        <div id="reg-body" class="pane on">
+          <div class="cl cl-i"><span class="cli">📋</span><div>Body → <strong>raw</strong> → <strong>JSON</strong></div></div>
+          <div class="code"><button class="cpb" onclick="cp(this)">Copy</button>{
+  <span class="ck">"name"</span>:     <span class="cs">"Dara Sok"</span>,
+  <span class="ck">"email"</span>:    <span class="cs">"dara@example.com"</span>,
+  <span class="ck">"password"</span>: <span class="cs">"password123"</span>
+}</div>
+        </div>
+        <div id="reg-resp" class="pane">
+          <div class="code">{
+  <span class="ck">"success"</span>: <span class="cb">true</span>,
+  <span class="ck">"data"</span>: {
+    <span class="ck">"user"</span>: {
+      <span class="ck">"id"</span>: <span class="cn">1</span>, <span class="ck">"name"</span>: <span class="cs">"Dara Sok"</span>,
+      <span class="ck">"email"</span>: <span class="cs">"dara@example.com"</span>
+    },
+    <span class="ck">"token"</span>: <span class="cs">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>
+  }
+}</div>
+          <div style="margin-top:11px">
+            <div class="rr"><span class="rp r201">201</span><span class="rd">Created — user + token</span></div>
+            <div class="rr"><span class="rp r409">409</span><span class="rd">Email already registered</span></div>
+            <div class="rr"><span class="rp r422">422</span><span class="rd">Validation failed</span></div>
+          </div>
+        </div>
+        <div id="reg-test" class="pane">
+          <div class="cl cl-s"><span class="cli">🤖</span><div>Paste ក្នុង <strong>Tests tab</strong> — auto-save token ក្រោយ register/login</div></div>
+          <div class="code"><button class="cpb" onclick="cp(this)">Copy</button><span class="cc">// Auto-save JWT to environment</span>
+const res = pm.response.json();
+if (res.success && res.data.token) {
+  pm.environment.set(<span class="cs">"token"</span>, res.data.token);
+  console.log(<span class="cs">"✅ Token saved!"</span>);
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="sec" id="login">
+    <div class="sec-t">Auth — Login</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt POST">POST</span><div class="ep-t">Login</div><div style="font-size:11px;color:var(--muted)">admin@rouscheat.kh / password123</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/auth/login</span></div>
+      <div class="ep-b">
+        <div class="cl cl-s"><span class="cli">🌱</span><div>Demo: <code style="font-family:var(--mono);color:var(--teal)">admin@rouscheat.kh</code> / <code style="font-family:var(--mono);color:var(--teal)">password123</code></div></div>
+        <div class="code"><button class="cpb" onclick="cp(this)">Copy</button>{
+  <span class="ck">"email"</span>:    <span class="cs">"admin@rouscheat.kh"</span>,
+  <span class="ck">"password"</span>: <span class="cs">"password123"</span>
+}</div>
+        <p style="font-size:11.5px;color:var(--muted);margin:11px 0 6px;font-weight:600">Tests tab:</p>
+        <div class="code"><button class="cpb" onclick="cp(this)">Copy</button>const res = pm.response.json();
+if (res.success) pm.environment.set(<span class="cs">"token"</span>, res.data.token);</div>
+        <div style="margin-top:11px">
+          <div class="rr"><span class="rp r200">200</span><span class="rd">OK — token returned</span></div>
+          <div class="rr"><span class="rp r401">401</span><span class="rd">Invalid credentials</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ME -->
+  <div class="sec" id="me">
+    <div class="sec-t">Auth — Me</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Get current user profile</div><span class="ep-auth">🔒 Auth</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/auth/me</span></div>
+      <div class="ep-b">
+        <div class="cl cl-w"><span class="cli">🔒</span><div>Authorization → <strong>Inherit auth from parent</strong></div></div>
+        <div class="rr" style="margin-top:8px"><span class="rp r200">200</span><span class="rd">User object (no password)</span></div>
+        <div class="rr"><span class="rp r401">401</span><span class="rd">Token missing or expired</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECIPE LIST -->
+  <div class="sec" id="r-list">
+    <div class="sec-t">Recipes — List</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">List all recipes (paginated)</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes</span><span class="uq">?page=1&amp;per_page=20</span></div>
+      <div class="ep-b">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600">Params tab — optional filters:</p>
+        <table class="tbl">
+          <thead><tr><th>Param</th><th>Example</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>page</td><td>1</td><td>Page number</td></tr>
+            <tr><td>per_page</td><td>20</td><td>Max 100</td></tr>
+            <tr><td>category_id</td><td>1</td><td>Filter category</td></tr>
+            <tr><td>region_id</td><td>2</td><td>Filter province</td></tr>
+            <tr><td>difficulty</td><td>easy</td><td>easy/medium/hard</td></tr>
+          </tbody>
+        </table>
+        <div class="rr" style="margin-top:12px"><span class="rp r200">200</span><span class="rd">Paginated list + meta (total, pages)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECIPE SHOW -->
+  <div class="sec" id="r-show">
+    <div class="sec-t">Recipes — Single</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Get recipe by ID</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/</span><span class="uq">{{recipe_id}}</span></div>
+      <div class="ep-b">
+        <div class="rr"><span class="rp r200">200</span><span class="rd">Full recipe: ingredients, instructions, avg_rating, review_count</span></div>
+        <div class="rr"><span class="rp r404">404</span><span class="rd">Recipe not found</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH / POPULAR / RANDOM -->
+  <div class="sec" id="r-search">
+    <div class="sec-t">Recipes — Search / Popular / Random</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Search recipes</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/search</span><span class="uq">?q=amok</span></div>
+      <div class="ep-b"><p style="font-size:12px;color:var(--muted)">Params tab → <code style="font-family:var(--mono);color:var(--teal)">q</code> = keyword (min 2 chars). ស្វែងរក title_en, title_kh, description.</p></div>
+    </div>
+    <div class="ep" id="r-popular" style="margin-top:10px">
+      <div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Popular recipes</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/popular</span><span class="uq">?limit=10</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">Sort by favorites + avg_rating</span></div></div>
+    </div>
+    <div class="ep" id="r-random" style="margin-top:10px">
+      <div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Random recipe</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/random</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">One random full recipe object</span></div></div>
+    </div>
+  </div>
+
+  <!-- CREATE -->
+  <div class="sec" id="r-create">
+    <div class="sec-t">Recipes — Create</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt POST">POST</span><div class="ep-t">Create new recipe</div><span class="ep-auth">🔒 Auth</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes</span></div>
+      <div class="ep-b">
+        <div class="cl cl-w"><span class="cli">🔒</span><div>Authorization → Inherit · Body → raw → JSON</div></div>
+        <div class="code"><button class="cpb" onclick="cp(this)">Copy</button>{
+  <span class="ck">"title_en"</span>:         <span class="cs">"Beef Lok Lak"</span>,
+  <span class="ck">"title_kh"</span>:         <span class="cs">"លីកឡាក់"</span>,
+  <span class="ck">"description_en"</span>:   <span class="cs">"Stir-fried beef with Kampot pepper."</span>,
+  <span class="ck">"category_id"</span>:       <span class="cn">7</span>,
+  <span class="ck">"region_id"</span>:         <span class="cn">6</span>,
+  <span class="ck">"difficulty"</span>:        <span class="cs">"easy"</span>,
+  <span class="ck">"cook_time_minutes"</span>: <span class="cn">20</span>,
+  <span class="ck">"prep_time_minutes"</span>: <span class="cn">30</span>,
+  <span class="ck">"servings"</span>:          <span class="cn">2</span>,
+  <span class="ck">"tags"</span>: [<span class="cs">"beef"</span>, <span class="cs">"pepper"</span>, <span class="cs">"quick"</span>],
+  <span class="ck">"ingredients"</span>: [
+    { <span class="ck">"name"</span>: <span class="cs">"Beef tenderloin"</span>, <span class="ck">"amount"</span>: <span class="cs">"300g"</span> },
+    { <span class="ck">"name"</span>: <span class="cs">"Oyster sauce"</span>,    <span class="ck">"amount"</span>: <span class="cs">"2 tbsp"</span> }
+  ],
+  <span class="ck">"instructions_en"</span>: [
+    <span class="cs">"Marinate beef for 30 minutes."</span>,
+    <span class="cs">"Stir-fry on high heat 3-4 minutes."</span>,
+    <span class="cs">"Serve over lettuce with dipping sauce."</span>
+  ]
+}</div>
+        <div style="margin-top:12px">
+          <div class="rr"><span class="rp r201">201</span><span class="rd">Recipe created — full object</span></div>
+          <div class="rr"><span class="rp r401">401</span><span class="rd">Not authenticated</span></div>
+          <div class="rr"><span class="rp r422">422</span><span class="rd">Validation error</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPDATE / DELETE -->
+  <div class="sec" id="r-update">
+    <div class="sec-t">Recipes — Update & Delete</div>
+    <div class="ep">
+      <div class="ep-h"><span class="mt PUT">PUT</span><div class="ep-t">Update recipe</div><span class="ep-auth">🔒 Owner</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/</span><span class="uq">{{recipe_id}}</span></div>
+      <div class="ep-b">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:9px">Send fields ដែលចង់ប្ដូរប៉ុណ្ណោះ:</p>
+        <div class="code"><button class="cpb" onclick="cp(this)">Copy</button>{
+  <span class="ck">"title_en"</span>:         <span class="cs">"Updated Title"</span>,
+  <span class="ck">"difficulty"</span>:        <span class="cs">"medium"</span>,
+  <span class="ck">"cook_time_minutes"</span>: <span class="cn">60</span>
+}</div>
+        <div style="margin-top:11px">
+          <div class="rr"><span class="rp r200">200</span><span class="rd">Updated recipe returned</span></div>
+          <div class="rr"><span class="rp r403">403</span><span class="rd">Not the owner</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="ep" id="r-delete" style="margin-top:10px">
+      <div class="ep-h"><span class="mt DELETE">DELETE</span><div class="ep-t">Delete recipe</div><span class="ep-auth">🔒 Owner</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/</span><span class="uq">{{recipe_id}}</span></div>
+      <div class="ep-b">
+        <div class="cl cl-w"><span class="cli">⚠️</span><div>Body មិនបាច់ — Method DELETE ប៉ុណ្ណោះ</div></div>
+        <div class="rr" style="margin-top:8px"><span class="rp r204">204</span><span class="rd">Deleted (empty body)</span></div>
+        <div class="rr"><span class="rp r403">403</span><span class="rd">Not the owner</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="sec" id="categories">
+    <div class="sec-t">Categories & Regions</div>
+    <div class="ep"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">All categories</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/categories</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">10 categories with emoji + Khmer name</span></div></div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Recipes by category</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/categories/</span><span class="uq">1</span><span class="up">/recipes</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">Paginated recipes in category</span></div></div>
+    </div>
+    <div class="ep" id="regions" style="margin-top:10px"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">All 24 provinces</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/regions</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">24 provinces with Khmer name</span></div></div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Recipes by province</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/regions/</span><span class="uq">2</span><span class="up">/recipes</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">Recipes from Siem Reap (id=2)</span></div></div>
+    </div>
+  </div>
+
+  <!-- INGREDIENTS -->
+  <div class="sec" id="ingredients">
+    <div class="sec-t">Ingredients</div>
+    <div class="ep"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Search ingredients</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/ingredients/search</span><span class="uq">?q=lemongrass</span></div>
+      <div class="ep-b">
+        <div class="code">{
+  <span class="ck">"success"</span>: <span class="cb">true</span>,
+  <span class="ck">"data"</span>: [{
+    <span class="ck">"id"</span>: <span class="cn">1</span>, <span class="ck">"name_en"</span>: <span class="cs">"Lemongrass"</span>,
+    <span class="ck">"name_kh"</span>: <span class="cs">"ស្លឹកគ្រៃ"</span>, <span class="ck">"category"</span>: <span class="cs">"citrus"</span>,
+    <span class="ck">"substitutes"</span>: []
+  }]
+}</div>
+      </div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Ingredient detail + substitutes</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/ingredients/</span><span class="uq">1</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">Ingredient + substitute list</span></div></div>
+    </div>
+  </div>
+
+  <!-- FAVORITES -->
+  <div class="sec" id="favorites">
+    <div class="sec-t">Favorites</div>
+    <div class="ep"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">My favorites</div><span class="ep-auth">🔒 Auth</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/favorites</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">List of saved recipes</span></div></div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt POST">POST</span><div class="ep-t">Save to favorites</div><span class="ep-auth">🔒 Auth</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/favorites/</span><span class="uq">1</span></div>
+      <div class="ep-b">
+        <div class="cl cl-i"><span class="cli">💡</span><div>Body មិនបាច់ — ID recipe នៅ URL ប៉ុណ្ណោះ</div></div>
+        <div class="rr" style="margin-top:6px"><span class="rp r201">201</span><span class="rd">Saved to favorites</span></div>
+      </div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt DELETE">DELETE</span><div class="ep-t">Remove favorite</div><span class="ep-auth">🔒 Auth</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/favorites/</span><span class="uq">1</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r204">204</span><span class="rd">Removed</span></div></div>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="sec" id="reviews">
+    <div class="sec-t">Reviews</div>
+    <div class="ep"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Get recipe reviews</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/</span><span class="uq">1</span><span class="up">/reviews</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">Paginated reviews + author info</span></div></div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt POST">POST</span><div class="ep-t">Add / Update review</div><span class="ep-auth">🔒 Auth · Upsert</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/recipes/</span><span class="uq">1</span><span class="up">/reviews</span></div>
+      <div class="ep-b">
+        <div class="code"><button class="cpb" onclick="cp(this)">Copy</button>{
+  <span class="ck">"rating"</span>:  <span class="cn">5</span>,
+  <span class="ck">"comment"</span>: <span class="cs">"ឆ្ងាញ់ណាស់! ដូចម្ហូបគ្រួសារ។"</span>
+}</div>
+        <div style="margin-top:11px">
+          <div class="rr"><span class="rp r201">201</span><span class="rd">Saved (upsert — 1 per user per recipe)</span></div>
+          <div class="rr"><span class="rp r422">422</span><span class="rd">Rating must be 1–5</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="sec" id="users">
+    <div class="sec-t">Users</div>
+    <div class="ep"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">Public profile</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/users/</span><span class="uq">1</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">Name, bio, location (no email/password)</span></div></div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt GET">GET</span><div class="ep-t">User's recipes</div></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/users/</span><span class="uq">1</span><span class="up">/recipes</span></div>
+      <div class="ep-b"><div class="rr"><span class="rp r200">200</span><span class="rd">Paginated recipes by user</span></div></div>
+    </div>
+    <div class="ep" style="margin-top:10px"><div class="ep-h"><span class="mt PUT">PUT</span><div class="ep-t">Update my profile</div><span class="ep-auth">🔒 Auth</span></div>
+      <div class="url-r"><span class="ub">{{base_url}}</span><span class="up">/users/profile</span></div>
+      <div class="ep-b">
+        <div class="code"><button class="cpb" onclick="cp(this)">Copy</button>{
+  <span class="ck">"name"</span>:     <span class="cs">"Dara Sok"</span>,
+  <span class="ck">"bio"</span>:      <span class="cs">"I love Khmer food 🍲"</span>,
+  <span class="ck">"location"</span>: <span class="cs">"Phnom Penh"</span>
+}</div>
+        <div class="rr" style="margin-top:11px"><span class="rp r200">200</span><span class="rd">Updated user returned</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS CODES -->
+  <div class="sec" id="codes">
+    <div class="sec-t">HTTP Status Codes</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <div class="rr" style="padding:9px 16px"><span class="rp r200">200</span><span class="rd">OK — Success</span></div>
+      <div class="rr" style="padding:9px 16px"><span class="rp r201">201</span><span class="rd">Created — Resource created</span></div>
+      <div class="rr" style="padding:9px 16px"><span class="rp r204">204</span><span class="rd">No Content — Deleted</span></div>
+      <div class="rr" style="padding:9px 16px"><span class="rp r401">401</span><span class="rd">Unauthorized — Token missing/expired</span></div>
+      <div class="rr" style="padding:9px 16px"><span class="rp r403">403</span><span class="rd">Forbidden — Not the owner</span></div>
+      <div class="rr" style="padding:9px 16px"><span class="rp r404">404</span><span class="rd">Not Found</span></div>
+      <div class="rr" style="padding:9px 16px"><span class="rp r409">409</span><span class="rd">Conflict — Email already exists</span></div>
+      <div class="rr" style="padding:9px 16px"><span class="rp r422">422</span><span class="rd">Validation Failed</span></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function tog(h) { h.closest('.step').classList.toggle('op'); }
+
+function sw(g, p, btn) {
+  document.querySelectorAll(`#tg-${g} .tab`).forEach(t => t.classList.remove('on'));
+  document.querySelectorAll(`[id^="${g}-"]`).forEach(x => x.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById(`${g}-${p}`).classList.add('on');
+}
+
+function cp(btn) {
+  const text = (btn.closest('.code').innerText || '').replace(/^Copy\n?/, '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+// Highlight active nav on scroll
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.sb-a').forEach(a => a.classList.remove('on'));
+      const a = document.querySelector(`.sb-a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('on');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+document.querySelectorAll('.sec[id]').forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
